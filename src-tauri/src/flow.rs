@@ -230,7 +230,7 @@ impl FlowEngine {
         let dir = path_buf.parent().ok_or(Error::InvalidPath)?.to_str().ok_or(Error::InvalidPath)?;
 
         let package_metadata = fs::metadata(&cache_dir).await?;
-        let total_size = package_metadata.size();
+        let total_size = package_metadata.len();
         let size = session.execute_command(
             format!("du {target_file} | tr -s ' ' | cut -d ' ' -f 1").as_str(),
         ).await.unwrap_or("0".into());
