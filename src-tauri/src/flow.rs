@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::io;
-use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
 
 use bytesize::ByteSize;
