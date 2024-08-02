@@ -1,0 +1,44 @@
+{
+  "name": "部署Redis组件",
+  "description": "Redis是一个开源的内存数据库，通常用于缓存和消息队列",
+  "icon": "redis",
+  "parameters": [],
+  "steps": [
+    {
+      "type": "downloadPackage",
+      "name": "下载Redis镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep redis)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/redis-7.4.tar",
+      "targetFile": "docker/images/redis-7.4.tar"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输Redis镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep redis)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/redis-7.4.tar",
+      "targetFile": "/app/images/redis-7.4.tar"
+    },
+    {
+      "type": "runCommand",
+      "name": "加载Redis镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep redis)\" ]; then exit 1; else exit 0; fi'",
+      "command": "for image in $(ls /app/images/*.tar); do docker load -i \"${image}\"; done"
+    },
+    {
+      "type": "runCommand",
+      "name": "执行部署",
+      "condition": "docker ps --format \"{{.Image}}\" | grep redis",
+      "command": "docker run -d --name redis --restart=unless-stopped --network=host -v redis-data:/data redis:7.4-alpine redis-server --appendonly yes --requirepass redis@dh123"
+    },
+    {
+      "type": "runCommand",
+      "name": "low一眼日志",
+      "command": "sleep 3 && docker logs redis -n 500"
+    },
+    {
+      "type": "runCommand",
+      "name": "清理部署文件",
+      "command": "rm -rf /app/images"
+    }
+  ]
+}

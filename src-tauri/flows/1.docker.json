@@ -1,0 +1,44 @@
+{
+  "name": "安装Docker环境",
+  "description": "Docker环境是一种轻量级的虚拟化技术，可以在Linux系统上快速部署各类系统",
+  "icon": "docker",
+  "parameters": [],
+  "steps": [
+    {
+      "type": "downloadPackage",
+      "name": "下载环境安装包",
+      "condition": "docker version",
+      "package": "docker/{{ os }}",
+      "targetFile": "docker/{% if os == 'ubuntu' %}debs{% else %}rpms{% endif %}.tar.gz"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输环境安装包",
+      "condition": "docker version",
+      "package": "docker/{% if os == 'ubuntu' %}debs{% else %}rpms{% endif %}.tar.gz",
+      "targetFile": "/setup/{% if os == 'ubuntu' %}debs{% else %}rpms{% endif %}.tar.gz"
+    },
+    {
+      "type": "runCommand",
+      "name": "解压环境安装包",
+      "condition": "sh -c 'if [ -z \"$(ls /setup/ | grep {% if os == 'ubuntu' %}debs{% else %}rpms{% endif %}.tar.gz)\" ]; then exit 0; else exit 1; fi'",
+      "command": "tar -xzvf /setup/{% if os == 'ubuntu' %}debs{% else %}rpms{% endif %}.tar.gz -C /setup"
+    },
+    {
+      "type": "runCommand",
+      "name": "安装Docker",
+      "condition": "docker version",
+      "command": "{% if os == 'ubuntu' %}dpkg -i /setup/debs/*.deb{% else %}rpm -ivh /setup/rpms/*.rpm{% endif %}"
+    },
+    {
+      "type": "runCommand",
+      "name": "查看Docker版本信息",
+      "command": "docker info"
+    },
+    {
+      "type": "runCommand",
+      "name": "清理安装文件",
+      "condition": "rm -rf /setup"
+    }
+  ]
+}

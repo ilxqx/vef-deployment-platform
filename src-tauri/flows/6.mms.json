@@ -1,0 +1,111 @@
+{
+  "name": "部署医务管理系统",
+  "description": "医务管理系统是一种用于医院管理的信息系统，可以帮助医院提高工作效率",
+  "icon": "hospital",
+  "parameters": [],
+  "steps": [
+    {
+      "type": "downloadPackage",
+      "name": "下载部署包",
+      "condition": "ls /app/mms/mms.tar.gz",
+      "package": "service/mms",
+      "targetFile": "service/mms.tar.gz"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输部署包",
+      "condition": "ls /app/mms/mms.tar.gz",
+      "package": "service/mms.tar.gz",
+      "targetFile": "/app/mms/mms.tar.gz"
+    },
+    {
+      "type": "runCommand",
+      "name": "解压部署包",
+      "condition": "sh -c 'if [ -z \"$(ls /app/mms/ | grep mms.tar.gz)\" ]; then exit 0; else exit 1; fi'",
+      "command": "tar -xzvf /app/mms/mms.tar.gz -C /app/mms"
+    },
+    {
+      "type": "downloadPackage",
+      "name": "下载JDK17镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}-{{.Tag}}{% endraw %}\" | grep eclipse-temurin-17-jdk)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/jdk-17.tar",
+      "targetFile": "docker/images/jdk-17.tar"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输JDK17镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}-{{.Tag}}{% endraw %}\" | grep eclipse-temurin-17-jdk)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/jdk-17.tar",
+      "targetFile": "/app/images/jdk-17.tar"
+    },
+    {
+      "type": "downloadPackage",
+      "name": "下载Nginx镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep nginx)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/nginx.tar",
+      "targetFile": "docker/images/nginx.tar"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输Nginx镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep nginx)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/nginx.tar",
+      "targetFile": "/app/images/nginx.tar"
+    },
+    {
+      "type": "runCommand",
+      "name": "加载JDK17和Nginx镜像",
+      "condition": "sh -c 'if [ -z \"$(ls /app/images/ | grep tar)\" ]; then exit 0; else exit 1; fi'",
+      "command": "for image in $(ls /app/images/*.tar); do docker load -i \"${image}\"; done"
+    },
+    {
+      "type": "runCommand",
+      "name": "low一眼Docker镜像",
+      "command": "docker images"
+    },
+    {
+      "type": "downloadPackage",
+      "name": "下载Server端配置文件",
+      "package": "config/mms/application.yml",
+      "targetFile": "config/mms/application.yml"
+    },
+    {
+      "type": "transferConfigFile",
+      "name": "传输Server端配置文件",
+      "sourceFile": "config/mms/application.yml",
+      "targetFile": "/app/mms/config/application.yml"
+    },
+    {
+      "type": "downloadPackage",
+      "name": "下载Web端配置文件",
+      "package": "config/mms/app.config.js",
+      "targetFile": "config/mms/app.config.js"
+    },
+    {
+      "type": "transferConfigFile",
+      "name": "传输Web端配置文件",
+      "sourceFile": "config/mms/app.config.js",
+      "targetFile": "/app/mms/web/dist/app.config.js"
+    },
+    {
+      "type": "runCommand",
+      "name": "执行部署",
+      "command": "docker compose -f /app/mms/docker-compose.yaml up --build -d"
+    },
+    {
+      "type": "runCommand",
+      "name": "检查服务状态",
+      "command": "sleep 10 && docker compose -p mms ps"
+    },
+    {
+      "type": "runCommand",
+      "name": "low一眼日志",
+      "command": "docker compose -p mms logs -n 1000"
+    },
+    {
+      "type": "runCommand",
+      "name": "清理部署文件",
+      "command": "rm -rf /app/images"
+    }
+  ]
+}

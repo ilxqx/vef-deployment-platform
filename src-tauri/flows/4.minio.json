@@ -1,0 +1,44 @@
+{
+  "name": "部署Minio组件",
+  "description": "Minio是一个开源的对象存储服务器，可以用于存储和管理大量的数据",
+  "icon": "minio",
+  "parameters": [],
+  "steps": [
+    {
+      "type": "downloadPackage",
+      "name": "下载Minio镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep minio)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/minio.tar",
+      "targetFile": "docker/images/minio.tar"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输Minio镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep minio)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/minio.tar",
+      "targetFile": "/app/images/minio.tar"
+    },
+    {
+      "type": "runCommand",
+      "name": "加载Minio镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep minio)\" ]; then exit 1; else exit 0; fi'",
+      "command": "for image in $(ls /app/images/*.tar); do docker load -i \"${image}\"; done"
+    },
+    {
+      "type": "runCommand",
+      "name": "执行部署",
+      "condition": "docker ps --format \"{{.Image}}\" | grep minio",
+      "command": "docker run -d --name minio --restart=unless-stopped --network=host -v minio-data:/data -e MINIO_ROOT_USER=minio -e MINIO_ROOT_PASSWORD=minio@dh123 minio/minio:latest server /data --console-address \":9090\""
+    },
+    {
+      "type": "runCommand",
+      "name": "low一眼日志",
+      "command": "sleep 3 && docker logs redis -n 500"
+    },
+    {
+      "type": "runCommand",
+      "name": "清理部署文件",
+      "command": "rm -rf /app/images"
+    }
+  ]
+}

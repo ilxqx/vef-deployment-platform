@@ -1,0 +1,85 @@
+{
+  "name": "部署数据库系统",
+  "description": "数据库系统是一种用于存储和管理数据的系统，可以帮助用户提高数据的安全性和可靠性",
+  "icon": "database",
+  "parameters": [
+    {
+      "name": "sql_scripts",
+      "label": "初始化SQL脚本",
+      "required": false,
+      "type": "file",
+      "multiple": true
+    }
+  ],
+  "steps": [
+    {
+      "type": "downloadPackage",
+      "name": "下载部署包",
+      "package": "service/database",
+      "targetFile": "service/database.tar.gz"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输部署包",
+      "package": "service/database.tar.gz",
+      "targetFile": "/app/database/database.tar.gz"
+    },
+    {
+      "type": "runCommand",
+      "name": "解压部署包",
+      "condition": "sh -c 'if [ -z \"$(ls /app/database/ | grep database.tar.gz)\" ]; then exit 0; else exit 1; fi'",
+      "command": "tar -xzvf /app/database/database.tar.gz -C /app/database"
+    },
+    {
+      "type": "downloadPackage",
+      "name": "下载PG数据库镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep postgres)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/postgres-15.7.tar",
+      "targetFile": "docker/images/postgres-15.7.tar"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输PG数据库镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep postgres)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/postgres-15.7.tar",
+      "targetFile": "/app/images/postgres-15.7.tar"
+    },
+    {
+      "type": "runCommand",
+      "name": "加载PG数据库镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep postgres)\" ]; then exit 1; else exit 0; fi'",
+      "command": "for image in $(ls /app/images/*.tar); do docker load -i \"${image}\"; done"
+    },
+    {
+      "type": "runCommand",
+      "name": "low一眼Docker镜像",
+      "command": "docker images"
+    },
+    {
+      "type": "transferFile",
+      "name": "传输SQL脚本",
+      "sourceFileParamName": "sql_scripts",
+      "targetDir": "/app/database/init-sql/"
+    },
+    {
+      "type": "runCommand",
+      "name": "执行部署",
+      "command": "docker compose -f /app/database/docker-compose.yaml up -d"
+    },
+    {
+      "type": "runCommand",
+      "name": "检查服务状态",
+      "command": "sleep 3 && docker compose -p database ps"
+    },
+    {
+      "type": "runCommand",
+      "name": "low一眼日志",
+      "command": "docker compose -p database logs -n 1000"
+    },
+    {
+      "type": "runCommand",
+      "name": "清理部署文件",
+      "command": "rm -rf /app/database /app/images"
+    }
+  ]
+}

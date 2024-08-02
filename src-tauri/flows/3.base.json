@@ -1,0 +1,80 @@
+{
+  "name": "部署基础服务组件",
+  "description": "基础服务组件包括 Redis、Minio、RabbitMQ 等等",
+  "icon": "base",
+  "parameters": [],
+  "steps": [
+    {
+      "type": "downloadPackage",
+      "name": "下载部署包",
+      "package": "service/base",
+      "targetFile": "service/base.tar.gz"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输部署包",
+      "package": "service/base.tar.gz",
+      "targetFile": "/app/base/base.tar.gz"
+    },
+    {
+      "type": "runCommand",
+      "name": "解压部署包",
+      "condition": "sh -c 'if [ -z \"$(ls /app/base/ | grep base.tar.gz)\" ]; then exit 0; else exit 1; fi'",
+      "command": "tar -xzvf /app/base/base.tar.gz -C /app/base"
+    },
+    {
+      "type": "downloadPackage",
+      "name": "下载Redis镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep redis)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/redis-7.4.tar",
+      "targetFile": "docker/images/redis-7.4.tar"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输Redis镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep redis)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/redis-7.4.tar",
+      "targetFile": "/app/images/redis-7.4.tar"
+    },
+    {
+      "type": "downloadPackage",
+      "name": "下载Minio镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep minio)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/minio.tar",
+      "targetFile": "docker/images/minio.tar"
+    },
+    {
+      "type": "transferPackage",
+      "name": "传输Minio镜像",
+      "condition": "sh -c 'if [ -z \"$(docker images --format \"{% raw %}{{.Repository}}{% endraw %}\" | grep minio)\" ]; then exit 1; else exit 0; fi'",
+      "package": "docker/images/minio.tar",
+      "targetFile": "/app/images/minio.tar"
+    },
+    {
+      "type": "runCommand",
+      "name": "加载Redis和Minio镜像",
+      "condition": "sh -c 'if [ -z \"$(ls /app/images/ | grep tar)\" ]; then exit 0; else exit 1; fi'",
+      "command": "for image in $(ls /app/images/*.tar); do docker load -i \"${image}\"; done"
+    },
+    {
+      "type": "runCommand",
+      "name": "执行部署",
+      "command": "docker compose -f /app/base/docker-compose.yaml up -d"
+    },
+    {
+      "type": "runCommand",
+      "name": "检查服务状态",
+      "command": "sleep 3 && docker compose -p base ps"
+    },
+    {
+      "type": "runCommand",
+      "name": "low一眼日志",
+      "command": "docker compose -p base logs -n 1000"
+    },
+    {
+      "type": "runCommand",
+      "name": "清理部署文件",
+      "command": "rm -rf /app/base /app/images"
+    }
+  ]
+}
