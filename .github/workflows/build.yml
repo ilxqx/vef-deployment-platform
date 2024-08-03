@@ -22,7 +22,7 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: './src-tauri -> target'
+          workspaces: 'src-tauri -> target'
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -35,6 +35,12 @@ jobs:
           cache: 'pnpm'
       - name: Install frontend dependencies
         run: pnpm i
+      - name: Download WebView2 Runtime
+        if: matrix.os == 'windows-latest'
+        run: curl -L https://github.com/westinyang/WebView2RuntimeArchive/releases/download/109.0.1518.78/Microsoft.WebView2.FixedVersionRuntime.109.0.1518.78.x64.cab -o .\Microsoft.WebView2.FixedVersionRuntime.109.0.1518.78.x64.cab
+      - name: Extract WebView2 Runtime
+        if: matrix.os == 'windows-latest'
+        run: Expand .\Microsoft.WebView2.FixedVersionRuntime.109.0.1518.78.x64.cab -F:* .\src-tauri
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
         env:

@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 use std::path::PathBuf;
 
+use path_slash::PathBufExt;
 use russh::{ChannelMsg, client::{self, Handle}, Disconnect};
 use russh_sftp::client::SftpSession;
 use serde::Serialize;
@@ -155,7 +156,7 @@ impl Session {
         buf.push(filename);
 
         let mut file_transfer = FileTransfer::new_with_event_progress_reporter(&mut sftp, window);
-        file_transfer.transfer_file(buf.to_str().unwrap(), data).await
+        file_transfer.transfer_file(buf.to_slash().unwrap().as_ref(), data).await
     }
 
     /// Closes the session.
