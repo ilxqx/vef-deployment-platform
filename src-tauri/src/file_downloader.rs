@@ -28,8 +28,11 @@ impl<'a> FileDownloader<'a> {
 
         let client = Client::new();
         let response = client.get(url).send().await?;
-        let total_size = response.content_length().ok_or(Error::FlowExecutionFailed("Content-Length header is missing when downloading file".to_string()))?;
+        if !response.status().is_success() {
+            return Err(Error::FlowExecutionFailed(format!("Failed to download file from {} to {}. Response status: {}, Response message: {}", url, target_file, response.status(), response.text().await?)));
+        }
 
+        let total_size = response.content_length().ok_or(Error::FlowExecutionFailed("Content-Length header is missing when downloading file".to_string()))?;
         if let Some(parent) = PathBuf::from(target_file).parent() {
             create_dir_all(parent).await?;
         }
