@@ -16,11 +16,13 @@ import TablerCube3dSphere from "~icons/tabler/cube-3d-sphere";
 import TablerDashboard from "~icons/tabler/dashboard";
 import TablerDatabase from "~icons/tabler/database";
 import TablerHexagonMinus from "~icons/tabler/hexagon-minus";
+import TablerPackages from "~icons/tabler/packages";
 import TablerReport from "~icons/tabler/report";
 import TablerServer2 from "~icons/tabler/server-2";
 import TablerTestPipe from "~icons/tabler/test-pipe";
 
 const iconMap: Record<string, ReactNode> = {
+  package: <TablerPackages />,
   docker: <TablerBrandDocker />,
   test: <TablerTestPipe />,
   ubuntu: <TablerBrandUbuntu />,

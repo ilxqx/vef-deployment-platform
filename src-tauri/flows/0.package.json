@@ -1,0 +1,21 @@
+{
+  "local": true,
+  "name": "离线安装环境包",
+  "description": "离线安装环境包适用于医院内部无网络环境，通过离线包的方式安装环境",
+  "icon": "package",
+  "parameters": [
+    {
+      "name": "offline_package",
+      "label": "离线环境包",
+      "required": true,
+      "type": "file",
+      "multiple": false
+    }
+  ],
+  "steps": [
+    {
+      "type": "decompressionOfflinePackage",
+      "name": "解压环境安装包"
+    }
+  ]
+}

@@ -107,6 +107,7 @@ const FlowExecution: FunctionComponent = () => {
   useEffect(() => {
     let stopFn: UnlistenFn | null = null;
     appWindow.listen<ProgressReporterEvent>("file-progress", ({ payload }) => {
+      console.log(payload);
       setCurrentProgress(prevProgress => {
         if (payload.progressPercent === 100) {
           return {

@@ -1,4 +1,5 @@
 {
+  "local": false,
   "name": "部署Minio组件",
   "description": "Minio是一个开源的对象存储服务器，可以用于存储和管理大量的数据",
   "icon": "minio",

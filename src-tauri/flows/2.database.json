@@ -1,4 +1,5 @@
 {
+  "local": false,
   "name": "部署数据库系统",
   "description": "数据库系统是一种用于存储和管理数据的系统，可以帮助用户提高数据的安全性和可靠性",
   "icon": "database",

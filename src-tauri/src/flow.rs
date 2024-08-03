@@ -10,18 +10,18 @@ use tera::Context;
 use tokio::fs;
 use tokio::fs::try_exists;
 
+use crate::decompressor::{Decompressor, ProgressDecompressor};
 use crate::error::Error;
-use crate::file_downloader::FileDownloader;
 use crate::flow_asset::FlowAsset;
 use crate::hospital_settings::HospitalSettings;
+use crate::package_resolver::{PackageResolver, RemoteServerPackageResolver};
 use crate::session::Session;
 use crate::template::TemplateEvaluator;
-
-const BASE_PACKAGE_URL: &str = "http://192.168.10.207:5959/packages/";
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FlowDefinition {
+    local: bool,
     name: String,
     description: String,
     icon: String,
@@ -137,35 +137,49 @@ impl FlowEngine {
 
     async fn handle_step(&self, step: &FlowStepDefinition, args: &HashMap<String, Value>, context: &Context, session: &mut Session, window: &Window) -> Result<(), Error> {
         match step.r#type.as_str() {
+            "decompressionOfflinePackage" => {
+                let offline_package = args.get("offline_package").expect("No offline package specified")
+                    .as_str()
+                    .expect("Invalid offline package type");
+                self.decompress_offline_package(offline_package, window).await
+            }
             "runCommand" => {
                 if let Some(ref command) = step.command {
-                    self.handle_command_step(command, context, session, window).await?;
+                    self.handle_command_step(command, context, session, window).await
                 } else {
-                    return Err(Error::FlowExecutionFailed(format!("No command specified for step {}", step.name)));
+                    Err(Error::FlowExecutionFailed(format!("No command specified for step {}", step.name)))
                 }
             }
             "downloadPackage" => {
-                self.download_package(step, context, window).await?;
+                self.download_package(step, context, window).await
             }
             "transferPackage" => {
                 let package = step.package.as_ref().expect(format!("No package specified for step {}", step.name).as_str());
                 let target_file = step.target_file.as_ref().expect(format!("No target file specified for step {}", step.name).as_str());
-                self.transfer_package(package, target_file, context, session, window).await?;
+                self.transfer_package(package, target_file, context, session, window).await
             }
             "transferConfigFile" => {
                 let source_file = step.source_file.as_ref().expect(format!("No source file specified for step {}", step.name).as_str());
                 let target_file = step.target_file.as_ref().expect(format!("No target file specified for step {}", step.name).as_str());
-                self.transfer_config_file(source_file, target_file, context, session, window).await?;
+                self.transfer_config_file(source_file, target_file, context, session, window).await
             }
             "transferFile" => {
-                self.transfer_file(step, args, session, window).await?;
+                self.transfer_file(step, args, session, window).await
             }
             _ => {
-                return Err(Error::FlowExecutionFailed(format!("Unsupported step type: {}", step.r#type)));
+                Err(Error::FlowExecutionFailed(format!("Unsupported step type: {}", step.r#type)))
             }
         }
+    }
 
-        Ok(())
+    /// Decompress offline package.
+    async fn decompress_offline_package(&self, offline_package: &str, window: &Window) -> Result<(), Error> {
+        let cache_dir = window.app_handle().path_resolver().app_cache_dir()
+            .ok_or(io::Error::new(io::ErrorKind::NotFound, "Cache directory not found"))?;
+
+        ProgressDecompressor::new(window)
+            .decompress(offline_package, &cache_dir)
+            .await
     }
 
     /// Execute the command on the target machine.
@@ -205,10 +219,10 @@ impl FlowEngine {
         }
 
         let package = step.package.as_ref().ok_or(Error::FlowExecutionFailed("No package specified".to_string()))?;
-        let url = format!("{}{}", BASE_PACKAGE_URL, self.render_template(package, &context)?);
-        println!("download url: {:?}", url);
-        FileDownloader::new_with_event_progress_reporter(window)
-            .download_file(&url, cache_dir.to_str().unwrap())
+        let package = self.render_template(package, &context)?;
+
+        RemoteServerPackageResolver::new(window)
+            .resolve(&package, cache_dir.to_str().unwrap())
             .await
     }
 

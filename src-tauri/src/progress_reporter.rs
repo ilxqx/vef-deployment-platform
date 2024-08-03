@@ -21,7 +21,7 @@ impl ProgressEvent {
             total_size_format: ByteSize::b(total_size as u64).to_string_as(false),
             processed_size,
             processed_size_format: ByteSize::b(processed_size as u64).to_string_as(false),
-            progress_percent
+            progress_percent,
         }
     }
 }
@@ -40,7 +40,7 @@ impl ProgressReporter for NoopProgressReporter {
 
 pub struct EventProgressReporter<'a> {
     event_name: &'a str,
-    window: &'a Window
+    window: &'a Window,
 }
 
 #[async_trait]

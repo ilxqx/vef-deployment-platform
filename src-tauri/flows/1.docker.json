@@ -1,4 +1,5 @@
 {
+  "local": false,
   "name": "安装Docker环境",
   "description": "Docker环境是一种轻量级的虚拟化技术，可以在Linux系统上快速部署各类系统",
   "icon": "docker",

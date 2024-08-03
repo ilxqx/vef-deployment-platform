@@ -1,4 +1,5 @@
 {
+  "local": false,
   "name": "部署基础服务组件",
   "description": "基础服务组件包括 Redis、Minio、RabbitMQ 等等",
   "icon": "base",

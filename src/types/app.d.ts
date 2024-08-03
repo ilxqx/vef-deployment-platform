@@ -24,6 +24,7 @@ declare global {
   };
 
   type FlowDefinition = {
+    local: boolean;
     name: string;
     description: string;
     icon: string;

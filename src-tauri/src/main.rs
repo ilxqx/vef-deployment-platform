@@ -16,10 +16,13 @@ mod flow;
 mod flow_asset;
 mod script;
 mod progress_reporter;
+mod package_resolver;
 mod file_transfer;
 mod hospital_settings;
 mod file_downloader;
 mod template;
+mod util;
+mod decompressor;
 
 fn main() {
     tauri::Builder::default()

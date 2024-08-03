@@ -160,6 +160,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-compression"
+version = "0.4.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fec134f64e2bc57411226dfc4e52dec859ddfc7e711fc5e07b612584f000e4aa"
+dependencies = [
+ "flate2",
+ "futures-core",
+ "memchr",
+ "pin-project-lite",
+ "tokio",
+]
+
+[[package]]
 name = "async-executor"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5168,6 +5181,7 @@ dependencies = [
  "uuid",
  "webkit2gtk",
  "webview2-com",
+ "win7-notifications",
  "windows 0.39.0",
 ]
 
@@ -5890,8 +5904,10 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 name = "vef-deployment-platform"
 version = "1.0.0"
 dependencies = [
+ "async-compression",
  "async-trait",
  "bytesize",
+ "flate2",
  "futures-util",
  "reqwest 0.12.5",
  "russh",
@@ -5899,6 +5915,7 @@ dependencies = [
  "rust-embed",
  "serde",
  "serde_json",
+ "tar",
  "tauri",
  "tauri-build",
  "tera",
@@ -6227,6 +6244,16 @@ name = "weezl"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "53a85b86a771b1c87058196170769dd264f66c0782acf1ae6cc51bfd64b39082"
+
+[[package]]
+name = "win7-notifications"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5769377d35b12e7995433e4af522260a6b37c24f57e7fbb75755f54a1a639bd4"
+dependencies = [
+ "once_cell",
+ "windows-sys 0.52.0",
+]
 
 [[package]]
 name = "winapi"

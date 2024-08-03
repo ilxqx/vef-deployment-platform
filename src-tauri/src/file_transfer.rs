@@ -36,6 +36,7 @@ impl<'a> FileTransfer<'a> {
             self.progress_reporter.report_progress(ProgressEvent::new(total_size, written)).await;
         }
 
+        file.sync_all().await?;
         file.flush().await?;
         file.shutdown().await?;
 

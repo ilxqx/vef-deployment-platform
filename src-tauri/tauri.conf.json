@@ -44,7 +44,13 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "webviewInstallMode": {
+          "type": "offlineInstaller"
+        },
+        "wix": {
+          "language": "zh-CN"
+        }
       }
     },
     "security": {
