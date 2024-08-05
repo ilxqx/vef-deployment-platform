@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "vef-deployment-platform",
-    "version": "1.0.6"
+    "version": "1.0.7"
   },
   "tauri": {
     "allowlist": {

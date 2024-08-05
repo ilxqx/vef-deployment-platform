@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "vef-deployment-platform",
-    "version": "1.0.6"
+    "version": "1.0.7"
   },
   "tauri": {
     "allowlist": {
@@ -47,7 +47,7 @@
         "timestampUrl": "",
         "webviewInstallMode": {
           "type": "fixedRuntime",
-          "path": "./Microsoft.WebView2.FixedVersionRuntime.92.0.902.73.x64"
+          "path": "./Microsoft.WebView2.FixedVersionRuntime.89.0.774.77.x64"
         },
         "wix": {
           "language": "zh-CN"
