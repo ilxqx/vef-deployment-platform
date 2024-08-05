@@ -47,7 +47,7 @@
         "timestampUrl": "",
         "webviewInstallMode": {
           "type": "fixedRuntime",
-          "path": "./Microsoft.WebView2.FixedVersionRuntime.92.0.902.73.x64.cab"
+          "path": "./Microsoft.WebView2.FixedVersionRuntime.92.0.902.73.x64"
         },
         "wix": {
           "language": "zh-CN"
