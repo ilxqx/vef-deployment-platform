@@ -1,5 +1,5 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "$schema": "../../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "beforeBuildCommand": "pnpm build",
     "beforeDevCommand": "pnpm dev",
@@ -46,7 +46,8 @@
         "digestAlgorithm": "sha256",
         "timestampUrl": "",
         "webviewInstallMode": {
-          "type": "skip"
+          "type": "fixedRuntime",
+          "path": "./Microsoft.WebView2.FixedVersionRuntime.92.0.902.73.x64.cab"
         },
         "wix": {
           "language": "zh-CN"

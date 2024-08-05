@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, windows-2019, macos-latest]
     runs-on: ${{ matrix.os }}
   
     steps:
@@ -35,12 +35,15 @@ jobs:
           cache: 'pnpm'
       - name: Install frontend dependencies
         run: pnpm i
+      - name: Copy win7 config
+        if: matrix.os == 'windows-2019'
+        run: Copy-Item -Force .\src-tauri\build\tauri.conf.json .\src-tauri\tauri.conf.json
       - name: Download WebView2 Runtime
-        if: matrix.os == 'windows-latest'
-        run: curl -L https://github.com/westinyang/WebView2RuntimeArchive/releases/download/100.0.1185.44/Microsoft.WebView2.FixedVersionRuntime.100.0.1185.44.x64.cab -o .\Microsoft.WebView2.FixedVersionRuntime.100.0.1185.44.x64.cab
+        if: matrix.os == 'windows-2019'
+        run: curl -L https://github.com/westinyang/WebView2RuntimeArchive/releases/download/92.0.902.73/Microsoft.WebView2.FixedVersionRuntime.92.0.902.73.x64.cab
       - name: Extract WebView2 Runtime
-        if: matrix.os == 'windows-latest'
-        run: Expand .\Microsoft.WebView2.FixedVersionRuntime.100.0.1185.44.x64.cab -F:* .\src-tauri
+        if: matrix.os == 'windows-2019'
+        run: Expand .\Microsoft.WebView2.FixedVersionRuntime.92.0.902.73.x64.cab -F:* .\src-tauri
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
         env:
